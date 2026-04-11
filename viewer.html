@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>StudioKukan - Web Tour</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #f0f4f8; font-family: sans-serif; }
+        /* スワイプによる画面スクロールを防止し、3Dキャンバスの操作に専念させる */
+        #canvas-container { width: 100vw; height: 100vh; touch-action: none; }
+        
+        /* Webツアー用のクリーンなUI */
+        #tour-overlay {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: rgba(15, 20, 30, 0.95); color: white; 
+            padding: 25px; border-radius: 8px; border: 1px solid #ffaa00;
+            width: 650px; max-width: 90vw; box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+            display: flex; flex-direction: column; gap: 15px; pointer-events: auto;
+            /* モバイル向けの調整 */
+            box-sizing: border-box;
+        }
+        
+        #tour-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ffaa00; padding-bottom: 10px; }
+        #tour-title { font-size: 20px; font-weight: bold; color: #ffdd66; margin: 0;}
+        #tour-counter { font-size: 14px; color: #aaa; font-family: monospace;}
+        
+        #tour-desc { font-size: 16px; line-height: 1.6; white-space: pre-wrap; color: #eee; min-height: 80px; overflow-y: auto; max-height: 30vh;}
+        
+        #tour-controls { display: flex; justify-content: space-between; gap: 10px; margin-top: 10px;}
+        .tour-btn { 
+            background: #2255aa; color: white; border: none; padding: 12px 20px; 
+            border-radius: 4px; cursor: pointer; font-weight: bold; flex: 1; transition: 0.2s;
+            /* モバイルでタップしやすいサイズ */
+            font-size: 16px;
+        }
+        .tour-btn:hover { background: #3366cc; }
+        .tour-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+        
+        .kukan-label {
+            background: rgba(0, 0, 0, 0.8); color: #fff; border: 1px solid #888;
+            padding: 4px 10px; border-radius: 15px; font-size: 13px; font-family: sans-serif;
+            white-space: nowrap; pointer-events: none; backdrop-filter: blur(2px); transition: opacity 0.4s;
+        }
+        .line-label { background: rgba(50, 80, 150, 0.8); border-color: #4488ff; }
+        .kukan-label.dimmed, .cross-mark.dimmed { opacity: 0.15; } 
+
+        #help-text { 
+            position: absolute; top: 15px; left: 15px; color: #666; font-size: 12px; font-family: monospace; pointer-events: none;
+            background: rgba(240, 244, 248, 0.7); padding: 5px; border-radius: 4px;
+        }
+
+        /* スマートフォン向けメディアクエリ */
+        @media (max-width: 768px) {
+            #tour-overlay {
+                bottom: 15px;
+                padding: 15px;
+                width: 95vw;
+                gap: 10px;
+            }
+            #tour-title { font-size: 18px; }
+            #tour-desc { font-size: 14px; min-height: 60px; max-height: 25vh;}
+            .tour-btn { padding: 10px; font-size: 14px; }
+            #help-text { font-size: 10px; top: 10px; left: 10px;}
+        }
+    </style>
+</head>
+<body>
+    <div id="help-text">StudioKukan Web Tour<br><span id="instruction-text">左ドラッグ: 回転 / 右ドラッグ: 平行移動 / スクロール: 拡大縮小</span></div>
+    
+    <div id="tour-overlay">
+        <div id="tour-header">
+            <h2 id="tour-title">タイトル</h2>
+            <div id="tour-counter">1 / 5</div>
+        </div>
+        <div id="tour-desc">ここに説明文が表示されます。</div>
+        <div id="tour-controls">
+            <button id="btn-prev" class="tour-btn" onclick="prevStep()">← 前へ</button>
+            <button id="btn-next" class="tour-btn" onclick="nextStep()">次へ →</button>
+        </div>
+    </div>
+
+    <div id="label-renderer-container" style="position: absolute; top: 0; left: 0; pointer-events: none; width: 100vw; height: 100vh;"></div>
+    <div id="canvas-container"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // スマホかどうかの判定をして案内テキストを切り替える
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            document.getElementById('instruction-text').innerText = "1本指: 回転 / 2本指: 平行移動・拡大縮小";
+        }
+
+        // ユーザーが作成したJSONデータ
+        const spaceData = {
+          "metadata": {
+            "title": "悪文！？アミラーゼ問題を理解しよう！",
+            "description": "悪文で有名なアミラーゼ構文。ここに訪れた方の多くがアミラーゼ問題を解けなかった人や答えを聞いてもわからなかった人だと思われます。そんな悩みにStudiokukanが答えます！まずはその問題文を読んでみましょう！\n\n「アミラーゼという酵素はグルコースがつながってできたデンプンを分解するが、同じグルコースからできていても、形が違うセルロースは分解できない。」\n\nこの文脈において、以下の文中の空欄に当てはまる最も適当なものを1つ選びなさい。\nセルロースは（  ）と形が違う。\n[ デンプン、アミラーゼ、グルコース、酵素 ]"
+          },
+          "nodes": [
+            { "id": "id_zqtgfnsyn", "semantic": { "type": "cylinder", "label": "デンプン", "description": "グルコースがつながってできた", "stackedOn": null, "stackedItems": [ "id_8wstqkjq9", "id_qiblyo11w", "id_yjp2nnhwx", "id_xv6huxt9a", "id_76h794251", "id_6mmftktoi", "id_s5zt87575", "id_2tmr16ysy", "id_hgle4laj7" ] }, "visual": { "position": { "x": -4.003, "y": 2.004, "z": -0.951 }, "scale": { "x": 5, "y": 1, "z": 5 }, "color": 13399927, "labelPos": "front" }, "runtime": { "isAmorphous": true, "placed": false } },
+            { "id": "id_8wstqkjq9", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -3.312, "y": 2.804, "z": 0.799 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_s5zt87575", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -2.431, "y": 2.804, "z": -0.000 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_6mmftktoi", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -2.051, "y": 2.804, "z": 1.086 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_2tmr16ysy", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -3.273, "y": 2.804, "z": -1.996 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_yjp2nnhwx", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -3.314, "y": 2.804, "z": -0.400 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_qiblyo11w", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -5.473, "y": 2.804, "z": -2.060 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_76h794251", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -5.424, "y": 2.804, "z": 0.879 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_xv6huxt9a", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -3.625, "y": 2.804, "z": -1.328 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_hgle4laj7", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_zqtgfnsyn", "stackedItems": [] }, "visual": { "position": { "x": -5.075, "y": 2.804, "z": -0.088 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_6uurmk4t2", "semantic": { "type": "cuboid", "label": "セルロース", "description": "グルコースがつながってできています。", "stackedOn": null, "stackedItems": [ "id_hmwx2q2hm", "id_a8rieozll", "id_i0u1mpsrx", "id_cqfb4y49v", "id_veoomvksx", "id_41trgivge", "id_hirqi0nop", "id_973vzgrdw", "id_sdbmt7sm7" ] }, "visual": { "position": { "x": 3.014, "y": 2.096, "z": -0.794 }, "scale": { "x": 5, "y": 1, "z": 5 }, "color": 13421687, "labelPos": "front" }, "runtime": { "isAmorphous": true, "placed": false } },
+            { "id": "id_973vzgrdw", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 1.751, "y": 2.896, "z": -1.575 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_i0u1mpsrx", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 2.482, "y": 2.896, "z": -0.421 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_41trgivge", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 2.708, "y": 2.896, "z": -2.636 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_a8rieozll", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 2.705, "y": 2.896, "z": 1.029 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_hirqi0nop", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 5.107, "y": 2.896, "z": -2.173 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_hmwx2q2hm", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 0.913, "y": 2.896, "z": 0.473 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_sdbmt7sm7", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 4.730, "y": 2.896, "z": 0.955 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_cqfb4y49v", "semantic": { "type": "cube", "label": "", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 1.423, "y": 2.896, "z": -0.875 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_veoomvksx", "semantic": { "type": "cube", "label": "グルコース", "description": "", "stackedOn": "id_6uurmk4t2", "stackedItems": [] }, "visual": { "position": { "x": 3.988, "y": 2.896, "z": 1.147 }, "scale": { "x": 0.6, "y": 0.6, "z": 0.6 }, "color": 8952234, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } },
+            { "id": "id_gs61xow2o", "semantic": { "type": "cuboid", "label": "酵素", "description": "", "stackedOn": null, "stackedItems": [ "id_835gzapgx" ] }, "visual": { "position": { "x": -0.186, "y": 2.407, "z": 5.885 }, "scale": { "x": 3.2, "y": 1, "z": 1.5 }, "color": 7851144, "labelPos": "front" }, "runtime": { "isAmorphous": false, "placed": false } },
+            { "id": "id_835gzapgx", "semantic": { "type": "cylinder", "label": "アミラーゼ", "description": "酵素の一種", "stackedOn": "id_gs61xow2o", "stackedItems": [] }, "visual": { "position": { "x": -0.186, "y": 3.407, "z": 5.885 }, "scale": { "x": 1, "y": 1, "z": 1 }, "color": 12290252, "labelPos": "top" }, "runtime": { "isAmorphous": false, "placed": true } }
+          ],
+          "edges": [
+            { "id": "id_fjhhwgz2w", "semantic": { "sourceId": "id_6mmftktoi", "targetId": "id_8wstqkjq9", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_2c1sndrq4", "semantic": { "sourceId": "id_6mmftktoi", "targetId": "id_76h794251", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_z19jdo7s9", "semantic": { "sourceId": "id_8wstqkjq9", "targetId": "id_hgle4laj7", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_mimomi6qr", "semantic": { "sourceId": "id_hgle4laj7", "targetId": "id_qiblyo11w", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_slw7tlgor", "semantic": { "sourceId": "id_hgle4laj7", "targetId": "id_xv6huxt9a", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_edp31ozo8", "semantic": { "sourceId": "id_2tmr16ysy", "targetId": "id_qiblyo11w", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_q4c8ftada", "semantic": { "sourceId": "id_qiblyo11w", "targetId": "id_xv6huxt9a", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_24ea7gwvi", "semantic": { "sourceId": "id_yjp2nnhwx", "targetId": "id_hgle4laj7", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_k7pgxvbos", "semantic": { "sourceId": "id_76h794251", "targetId": "id_hgle4laj7", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_piyyfzugl", "semantic": { "sourceId": "id_76h794251", "targetId": "id_yjp2nnhwx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_d8zsuqbjx", "semantic": { "sourceId": "id_s5zt87575", "targetId": "id_8wstqkjq9", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_7cf0i3z65", "semantic": { "sourceId": "id_6mmftktoi", "targetId": "id_s5zt87575", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_uhgttlrea", "semantic": { "sourceId": "id_s5zt87575", "targetId": "id_2tmr16ysy", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_5akmtd1d3", "semantic": { "sourceId": "id_xv6huxt9a", "targetId": "id_s5zt87575", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_5cdz0mctk", "semantic": { "sourceId": "id_yjp2nnhwx", "targetId": "id_qiblyo11w", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_asjkzw3en", "semantic": { "sourceId": "id_hgle4laj7", "targetId": "id_s5zt87575", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_c1dil7y5h", "semantic": { "sourceId": "id_76h794251", "targetId": "id_8wstqkjq9", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_iw8xhxvik", "semantic": { "sourceId": "id_sdbmt7sm7", "targetId": "id_veoomvksx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_djos9cpw3", "semantic": { "sourceId": "id_sdbmt7sm7", "targetId": "id_hirqi0nop", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_bak2e9cu3", "semantic": { "sourceId": "id_hirqi0nop", "targetId": "id_a8rieozll", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_qaehr8tpk", "semantic": { "sourceId": "id_veoomvksx", "targetId": "id_i0u1mpsrx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_iw1i4a5tj", "semantic": { "sourceId": "id_a8rieozll", "targetId": "id_veoomvksx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_2bqr7wb07", "semantic": { "sourceId": "id_a8rieozll", "targetId": "id_sdbmt7sm7", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_s79ke7nvh", "semantic": { "sourceId": "id_sdbmt7sm7", "targetId": "id_41trgivge", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_hhgw5cm95", "semantic": { "sourceId": "id_i0u1mpsrx", "targetId": "id_hirqi0nop", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_o88nm3daa", "semantic": { "sourceId": "id_41trgivge", "targetId": "id_973vzgrdw", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_zwqvc0tp7", "semantic": { "sourceId": "id_i0u1mpsrx", "targetId": "id_41trgivge", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_9z0ql7rp0", "semantic": { "sourceId": "id_973vzgrdw", "targetId": "id_i0u1mpsrx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_50ukekipr", "semantic": { "sourceId": "id_cqfb4y49v", "targetId": "id_hirqi0nop", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_vfz7r8zzy", "semantic": { "sourceId": "id_41trgivge", "targetId": "id_hirqi0nop", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_aft9k0yrq", "semantic": { "sourceId": "id_hmwx2q2hm", "targetId": "id_cqfb4y49v", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_0m7tapich", "semantic": { "sourceId": "id_hmwx2q2hm", "targetId": "id_i0u1mpsrx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_pm857fwli", "semantic": { "sourceId": "id_6uurmk4t2", "targetId": "id_a8rieozll", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_wxx8w5how", "semantic": { "sourceId": "id_i0u1mpsrx", "targetId": "id_a8rieozll", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_kblouzsyh", "semantic": { "sourceId": "id_a8rieozll", "targetId": "id_cqfb4y49v", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_cp1pvc1wp", "semantic": { "sourceId": "id_973vzgrdw", "targetId": "id_a8rieozll", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_wht9hq3fw", "semantic": { "sourceId": "id_sdbmt7sm7", "targetId": "id_i0u1mpsrx", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_s4eaa3dqi", "semantic": { "sourceId": "id_a8rieozll", "targetId": "id_41trgivge", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_3ahtxi8tg", "semantic": { "sourceId": "id_hmwx2q2hm", "targetId": "id_a8rieozll", "label": "", "description": "", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": false } },
+            { "id": "id_olzvaolq2", "semantic": { "sourceId": "id_835gzapgx", "targetId": "id_6uurmk4t2", "label": "", "description": "アミラーゼはセルロースを分解できない。理由はデンプンと同じように、同じグルコースから出来ていても、デンプンとはグルコースのつながり方が違うためです。", "isCrossedOut": true }, "visual": { "arrowStart": false, "arrowEnd": true } },
+            { "id": "id_q372947i9", "semantic": { "sourceId": "id_835gzapgx", "targetId": "id_zqtgfnsyn", "label": "", "description": "アミラーゼはデンプンを分解できます。", "isCrossedOut": false }, "visual": { "arrowStart": false, "arrowEnd": true } }
+          ]
+        };
+
+        // ツアーのステップ定義
+        const tourSteps = [
+            {
+                title: spaceData.metadata.title,
+                desc: spaceData.metadata.description,
+                targetId: null 
+            },
+            {
+                title: "1. 分解される対象「デンプン」",
+                desc: "アミラーゼが分解する対象です。たくさんの「グルコース（小さな立方体）」が特定の形でつながって土台を形成しています。",
+                targetId: "id_zqtgfnsyn" 
+            },
+            {
+                title: "2. 酵素「アミラーゼ」",
+                desc: "アミラーゼはデンプンを分解する酵素です。\n矢印が示すように、アミラーゼはデンプンに作用することができます。",
+                targetId: "id_q372947i9" 
+            },
+            {
+                title: "3. 別の形「セルロース」",
+                desc: "デンプンと同じく「グルコース」からできていますが、つながり方（全体の形）が異なります。",
+                targetId: "id_6uurmk4t2" 
+            },
+            {
+                title: "4. アミラーゼとセルロースの関係",
+                desc: "アミラーゼはセルロースを分解できません（✖マーク）。\n理由は、同じ材料（グルコース）からできていても「形が違う」からです。",
+                targetId: "id_olzvaolq2" 
+            },
+            {
+                title: "結論",
+                desc: "「セルロースは（  ）と形が違う。」\n\n空間全体を見渡すと、比較対象は明らかです。\n正解は「デンプン」です。",
+                targetId: null 
+            }
+        ];
+
+        let currentStep = 0;
+
+        // ＝＝＝ Three.js 基本設定 ＝＝＝
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf0f4f8);
+        scene.add(new THREE.GridHelper(50, 50, 0xcccccc, 0xe0e0e0));
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const cssRenderer = new CSS2DRenderer();
+        cssRenderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('label-renderer-container').appendChild(cssRenderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: null, RIGHT: THREE.MOUSE.PAN };
+        // タッチ操作の設定（デフォルトで有効ですが明示的に）
+        controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
+
+        const objects = [];
+        const linesData = [];
+
+        function isNode(entity) { return entity && entity.kind === 'node'; }
+        function isEdge(entity) { return entity && entity.kind === 'edge'; }
+
+        function buildSpace() {
+            spaceData.nodes.forEach(nd => {
+                let geo;
+                if(nd.semantic.type === 'cube' || nd.semantic.type === 'cuboid') geo = new THREE.BoxGeometry(1, 1, 1);
+                if(nd.semantic.type === 'sphere') geo = new THREE.SphereGeometry(0.5, 32, 32);
+                if(nd.semantic.type === 'cylinder') geo = new THREE.CylinderGeometry(0.5, 0.5, 1, 32);
+                
+                const cHex = nd.visual.color || 0x8899aa;
+                const mat = new THREE.MeshStandardMaterial({ color: cHex, roughness: 0.8, transparent: true, opacity: 1.0 });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(nd.visual.position.x, nd.visual.position.y, nd.visual.position.z);
+                mesh.scale.set(nd.visual.scale.x, nd.visual.scale.y, nd.visual.scale.z);
+                mesh.kind = 'node'; 
+                mesh.userData = { id: nd.id, semantic: nd.semantic, visual: nd.visual, runtime: nd.runtime };
+                scene.add(mesh); objects.push(mesh);
+            });
+
+            spaceData.edges.forEach(ed => {
+                const n1 = objects.find(o => o.userData.id === ed.semantic.sourceId);
+                const n2 = objects.find(o => o.userData.id === ed.semantic.targetId);
+                if(n1 && n2) {
+                    const geo = new THREE.BufferGeometry().setFromPoints([n1.position, n2.position]);
+                    const mesh = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x555555, linewidth: 2, transparent: true, opacity: 1.0 }));
+                    scene.add(mesh);
+                    linesData.push({ 
+                        kind: 'edge', id: ed.id, lineMesh: mesh, node1: n1, node2: n2, 
+                        hasArrow1: ed.visual.arrowStart, hasArrow2: ed.visual.arrowEnd, arrow1: null, arrow2: null, 
+                        isCrossedOut: ed.semantic.isCrossedOut, crossObject: null,
+                        labelText: ed.semantic.label, description: ed.semantic.description, labelObject: null 
+                    });
+                }
+            });
+
+            linesData.forEach(ld => { if(ld.hasArrow1) addArrowToLine(ld, 1); if(ld.hasArrow2) addArrowToLine(ld, 2); });
+            refreshAllLabels();
+        }
+
+        // 矢印の深度テストを元に戻し（隠れるようにし）、少しシャープな見た目に変更
+        function addArrowToLine(lineData, targetIndex) {
+            const arrowGeo = new THREE.ConeGeometry(0.25, 0.8, 16); 
+            arrowGeo.translate(0, -0.4, 0); 
+            arrowGeo.rotateX(Math.PI / 2); 
+            
+            const arrowMesh = new THREE.Mesh(arrowGeo, new THREE.MeshBasicMaterial({ 
+                color: 0xff3333, 
+                transparent: true, 
+                opacity: 1.0 
+            })); 
+            
+            scene.add(arrowMesh);
+            if (targetIndex === 1) { lineData.arrow1 = arrowMesh; lineData.hasArrow1 = true; } else { lineData.arrow2 = arrowMesh; lineData.hasArrow2 = true; }
+        }
+
+        function refreshAllLabels() {
+            [...objects, ...linesData].forEach(entity => {
+                const labelText = isNode(entity) ? entity.userData.semantic.label : entity.labelText;
+                if (labelText !== "") {
+                    const div = document.createElement('div');
+                    div.className = isNode(entity) ? 'kukan-label' : 'kukan-label line-label';
+                    div.innerText = labelText;
+                    entity.labelObject = new CSS2DObject(div);
+                    scene.add(entity.labelObject);
+                }
+                if (isEdge(entity) && entity.isCrossedOut) {
+                    const crossGroup = new THREE.Group();
+                    const mat = new THREE.MeshBasicMaterial({ color: 0xee4444, depthTest: true, transparent: true, opacity: 1.0 });
+                    const geo = new THREE.BoxGeometry(0.8, 0.15, 0.15); 
+                    const m1 = new THREE.Mesh(geo, mat); m1.rotation.z = Math.PI / 4;
+                    const m2 = new THREE.Mesh(geo, mat); m2.rotation.z = -Math.PI / 4;
+                    crossGroup.add(m1); crossGroup.add(m2);
+                    entity.crossObject = crossGroup;
+                    scene.add(crossGroup);
+                }
+            });
+            updateSpatialRelations();
+        }
+
+        function updateSpatialRelations() {
+            // 【重要修正】計算前に空間全体の最新座標を強制アップデート
+            scene.updateMatrixWorld(true);
+
+            const calcRaycaster = new THREE.Raycaster();
+            linesData.forEach(data => {
+                const p1 = data.node1.position; const p2 = data.node2.position;
+                if (p1.distanceTo(p2) < 0.1) return; 
+                const dir = new THREE.Vector3().subVectors(p2, p1).normalize();
+                
+                // 対象図形だけでなく、その上のグルコース（スタック要素）も含めて表面を計算
+                let targets1 = [data.node1];
+                if (data.node1.userData.semantic.stackedItems) {
+                    data.node1.userData.semantic.stackedItems.forEach(id => {
+                        const child = objects.find(o => o.userData.id === id);
+                        if (child) targets1.push(child);
+                    });
+                }
+                calcRaycaster.set(p2, dir.clone().negate()); 
+                const int1 = calcRaycaster.intersectObjects(targets1, false); 
+                const surfaceP1 = int1.length > 0 ? int1[0].point : p1;
+
+                let targets2 = [data.node2];
+                if (data.node2.userData.semantic.stackedItems) {
+                    data.node2.userData.semantic.stackedItems.forEach(id => {
+                        const child = objects.find(o => o.userData.id === id);
+                        if (child) targets2.push(child);
+                    });
+                }
+                calcRaycaster.set(p1, dir); 
+                const int2 = calcRaycaster.intersectObjects(targets2, false); 
+                const surfaceP2 = int2.length > 0 ? int2[0].point : p2;
+
+                const positions = data.lineMesh.geometry.attributes.position.array;
+                positions[0] = surfaceP1.x; positions[1] = surfaceP1.y; positions[2] = surfaceP1.z; 
+                positions[3] = surfaceP2.x; positions[4] = surfaceP2.y; positions[5] = surfaceP2.z;
+                data.lineMesh.geometry.attributes.position.needsUpdate = true;
+
+                if (data.arrow1) { data.arrow1.position.copy(surfaceP1); data.arrow1.lookAt(surfaceP1.clone().sub(dir)); }
+                if (data.arrow2) { data.arrow2.position.copy(surfaceP2); data.arrow2.lookAt(surfaceP2.clone().add(dir)); }
+                
+                const midPoint = new THREE.Vector3().addVectors(surfaceP1, surfaceP2).multiplyScalar(0.5);
+                if (data.labelObject) { data.labelObject.position.copy(midPoint); if (data.isCrossedOut) data.labelObject.position.y -= 0.6; }
+                if (data.crossObject) { data.crossObject.position.copy(midPoint); }
+            });
+
+            objects.forEach(mesh => {
+                if (!mesh.labelObject) return;
+                const bb = new THREE.Box3().setFromObject(mesh); const center = new THREE.Vector3(); bb.getCenter(center);
+                const size = new THREE.Vector3(); bb.getSize(size); const offset = new THREE.Vector3(); const pad = 0.4;
+                const pos = mesh.userData.visual.labelPos;
+                if (pos === 'top') offset.set(0, size.y / 2 + pad, 0);
+                else if (pos === 'right') offset.set(size.x / 2 + pad, 0, 0);
+                else if (pos === 'left') offset.set(-size.x / 2 - pad, 0, 0);
+                else if (pos === 'front') offset.set(0, 0, size.z / 2 + pad);
+                mesh.labelObject.position.copy(center).add(offset);
+            });
+        }
+
+        function setFocus(targetEntity) {
+            const isTargetNode = isNode(targetEntity);
+            
+            objects.forEach(obj => {
+                let isFocus = false;
+                if (isTargetNode) {
+                    const isConnected = linesData.some(ld => (ld.node1 === targetEntity || ld.node2 === targetEntity) && (ld.node1 === obj || ld.node2 === obj));
+                    const isStacked = (obj.userData.semantic.stackedOn === targetEntity.userData.id || targetEntity.userData.semantic.stackedOn === obj.userData.id);
+                    isFocus = (obj === targetEntity) || isConnected || isStacked;
+                } else {
+                    // エッジ（線分・矢印）を選択した際、両端の本体だけでなく上に乗っている要素（グルコース等）もフォーカス対象にする
+                    const isConnectedNode = (targetEntity.node1 === obj || targetEntity.node2 === obj);
+                    const isStackedOnNode1 = (obj.userData.semantic.stackedOn === targetEntity.node1.userData.id);
+                    const isStackedOnNode2 = (obj.userData.semantic.stackedOn === targetEntity.node2.userData.id);
+                    isFocus = isConnectedNode || isStackedOnNode1 || isStackedOnNode2;
+                }
+                obj.material.opacity = isFocus ? 1.0 : 0.15;
+                if(obj.labelObject) {
+                    if(isFocus) obj.labelObject.element.classList.remove('dimmed');
+                    else obj.labelObject.element.classList.add('dimmed');
+                }
+            });
+
+            linesData.forEach(ld => {
+                const isFocus = (!isTargetNode && ld === targetEntity) || (isTargetNode && (ld.node1 === targetEntity || ld.node2 === targetEntity));
+                ld.lineMesh.material.opacity = isFocus ? 1.0 : 0.15;
+                if(ld.arrow1) ld.arrow1.material.opacity = isFocus ? 1.0 : 0.15;
+                if(ld.arrow2) ld.arrow2.material.opacity = isFocus ? 1.0 : 0.15;
+                if(ld.labelObject) {
+                    if(isFocus) ld.labelObject.element.classList.remove('dimmed');
+                    else ld.labelObject.element.classList.add('dimmed');
+                }
+                if(ld.crossObject) {
+                    ld.crossObject.children.forEach(c => c.material.opacity = isFocus ? 1.0 : 0.15);
+                }
+            });
+        }
+
+        function resetFocus() {
+            objects.forEach(obj => { obj.material.opacity = 1.0; if(obj.labelObject) obj.labelObject.element.classList.remove('dimmed'); });
+            linesData.forEach(ld => {
+                ld.lineMesh.material.opacity = 1.0; if(ld.arrow1) ld.arrow1.material.opacity = 1.0; if(ld.arrow2) ld.arrow2.material.opacity = 1.0;
+                if(ld.labelObject) ld.labelObject.element.classList.remove('dimmed');
+                if(ld.crossObject) ld.crossObject.children.forEach(c => c.material.opacity = 1.0);
+            });
+        }
+        
+        function getEntityById(id) {
+            const node = objects.find(o => o.userData.id === id);
+            if(node) return node;
+            return linesData.find(ld => ld.id === id);
+        }
+
+        // ＝＝＝ ツアー制御ロジック ＝＝＝
+        function updateTourUI() {
+            const step = tourSteps[currentStep];
+            document.getElementById('tour-title').innerText = step.title;
+            document.getElementById('tour-desc').innerText = step.desc;
+            document.getElementById('tour-counter').innerText = `${currentStep + 1} / ${tourSteps.length}`;
+            
+            document.getElementById('btn-prev').disabled = (currentStep === 0);
+            document.getElementById('btn-next').disabled = (currentStep === tourSteps.length - 1);
+
+            if (step.targetId) {
+                const target = getEntityById(step.targetId);
+                if(target) setFocus(target);
+            } else {
+                resetFocus();
+                focusAllCamera();
+            }
+            
+            // モバイルなどで説明文が長い場合に一番上までスクロールを戻す
+            document.getElementById('tour-desc').scrollTop = 0;
+        }
+
+        function focusAllCamera() {
+            if(objects.length === 0) return;
+            const box = new THREE.Box3();
+            objects.forEach(o => box.expandByObject(o));
+            linesData.forEach(ld => { box.expandByObject(ld.lineMesh); });
+            const center = new THREE.Vector3(); box.getCenter(center);
+            const size = new THREE.Vector3(); box.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const fov = camera.fov * (Math.PI / 180);
+            const cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+            camera.position.set(center.x, center.y + maxDim/2, center.z + cameraZ * 1.5);
+            controls.target.copy(center);
+        }
+
+        window.nextStep = function() {
+            if (currentStep < tourSteps.length - 1) {
+                currentStep++;
+                updateTourUI();
+            }
+        };
+
+        window.prevStep = function() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateTourUI();
+            }
+        };
+
+        window.addEventListener('load', () => { 
+            buildSpace(); 
+            focusAllCamera();
+            updateTourUI();
+        });
+        
+        function animate() { 
+            requestAnimationFrame(animate); 
+            controls.update(); 
+            linesData.forEach(ld => { if(ld.crossObject && ld.crossObject.visible) ld.crossObject.lookAt(camera.position); });
+            renderer.render(scene, camera); 
+            cssRenderer.render(scene, camera); 
+        }
+        
+        window.addEventListener('resize', () => { 
+            camera.aspect = window.innerWidth / window.innerHeight; 
+            camera.updateProjectionMatrix(); 
+            renderer.setSize(window.innerWidth, window.innerHeight); 
+            cssRenderer.setSize(window.innerWidth, window.innerHeight); 
+        });
+        animate();
+    </script>
+</body>
+</html>
