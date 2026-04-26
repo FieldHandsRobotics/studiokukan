@@ -1,88 +1,103 @@
 {
   "metadata": {
-    "title": "電子ドリフト現象 ラベル分離版",
-    "description": "電場の矢印と電子ドリフトの説明ラベルが重ならないように、ラベルを上方・前方へずらした現象JSONです。"
+    "title": "電流モデル内蔵現象レイヤー（ラベル退避版）",
+    "description": "電場の矢印、電子の平均移動、電子粒子を分離して表示します。ラベルは矢印の線上から大きく退避させています。"
   },
   "phenomena": [
     {
-      "type": "particles",
+      "type": "flow",
       "motion": "drift",
-      "count": 140,
-      "speed": 0.32,
-      "spread": 1.15,
+      "label": "電子粒子",
+      "count": 64,
+      "density": 64,
+      "speed": 0.22,
+      "intensity": 0.55,
+      "color": 5210073,
+      "area": {
+        "min": {
+          "x": -3.8,
+          "y": -0.65,
+          "z": -0.55
+        },
+        "max": {
+          "x": 3.8,
+          "y": 0.65,
+          "z": 0.55
+        }
+      },
       "direction": {
         "x": -1,
         "y": 0,
         "z": 0
-      },
-      "color": 6724095,
-      "opacity": 0.72
-    },
-    {
-      "type": "vector",
-      "label": "",
-      "from": {
-        "x": -3.2,
-        "y": 0.85,
-        "z": 0.0
-      },
-      "to": {
-        "x": 3.2,
-        "y": 0.85,
-        "z": 0.0
-      },
-      "style": {
-        "arrow": true,
-        "thickness": 0.035,
-        "color": 16766720,
-        "opacity": 0.72
       }
     },
     {
       "type": "vector",
       "label": "",
       "from": {
-        "x": 2.8,
-        "y": -0.45,
-        "z": 0.55
+        "x": -4.2,
+        "y": 1.38,
+        "z": -0.82
       },
       "to": {
-        "x": -2.8,
-        "y": -0.45,
-        "z": 0.55
+        "x": 4.2,
+        "y": 1.38,
+        "z": -0.82
       },
       "style": {
         "arrow": true,
-        "thickness": 0.026,
-        "color": 6724095,
-        "opacity": 0.56
+        "color": 16768358,
+        "opacity": 0.85,
+        "thickness": 0.035
+      }
+    },
+    {
+      "type": "vector",
+      "label": "",
+      "from": {
+        "x": 3.6,
+        "y": -0.95,
+        "z": 0.82
+      },
+      "to": {
+        "x": -3.6,
+        "y": -0.95,
+        "z": 0.82
+      },
+      "style": {
+        "arrow": true,
+        "color": 6728447,
+        "opacity": 0.75,
+        "thickness": 0.028
       }
     },
     {
       "type": "label",
-      "text": "電場 E",
+      "text": "電場 E（＋極 → −極）",
       "position": {
-        "x": 3.55,
-        "y": 1.22,
-        "z": 0.18
-      },
-      "style": {
-        "size": 12,
-        "opacity": 0.95
+        "x": 3.15,
+        "y": 2.15,
+        "z": -1.45
       }
     },
     {
       "type": "label",
-      "text": "電子は電場と逆向きにゆっくりドリフトする",
+      "text": "電子の平均移動（−）",
       "position": {
-        "x": -0.25,
-        "y": 1.58,
-        "z": 0.62
-      },
-      "style": {
-        "size": 12,
-        "opacity": 0.95
+        "x": -3.45,
+        "y": -1.65,
+        "z": 1.55
+      }
+    },
+    {
+      "type": "label",
+      "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
+      "position": {
+        "x": 0,
+        "y": 3.1,
+        "z": -2.1
       }
     }
-  ]
+  ],
+  "layers": []
 }
