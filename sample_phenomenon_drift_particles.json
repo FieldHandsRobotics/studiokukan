@@ -1,31 +1,514 @@
 {
   "metadata": {
-    "title": "電子ドリフト現象",
-    "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
+    "title": "電流：電場・電子ドリフト・抵抗の空間モデル",
+    "description": "電流を、電池が作る電位差、導線内部の電場、電子のドリフト、抵抗でのエネルギー変換として空間化したモデル。現象JSON URLは導線内部ノードと電流エッジの両方に埋め込んである。"
   },
-  "phenomena": [
-    {
-      "type": "particles",
-      "motion": "drift",
-      "count": 180,
-      "speed": 0.32,
-      "spread": 5.5,
-      "intensity": 0.65,
-      "color": 6724095,
-      "direction": { "x": -1, "y": 0, "z": 0 }
-    },
-    {
-      "type": "vector",
-      "label": "電場の向き",
-      "from": { "x": -4, "y": 1.1, "z": 0 },
-      "to": { "x": 4, "y": 1.1, "z": 0 },
-      "color": 16768358,
-      "opacity": 0.55
-    },
-    {
-      "type": "label",
-      "text": "電子は電場と逆向きに平均移動する",
-      "position": { "x": 0, "y": 2.0, "z": 0 }
+  "spaces": {
+    "root": {
+      "metadata": {
+        "title": "電流の全体構造",
+        "description": "電池が電位差を作り、導線内部に電場が生じ、自由電子が平均的に偏って動く。抵抗では電気エネルギーが熱へ変換される。"
+      },
+      "nodes": [
+        {
+          "id": "battery_plus",
+          "semantic": {
+            "type": "cuboid",
+            "label": "＋極",
+            "description": "電池の高電位側。慣用電流はここから外部回路へ出ると考える。",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": -4,
+              "y": 1,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.8,
+              "y": 2.2,
+              "z": 1.2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 13399927,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        },
+        {
+          "id": "battery_minus",
+          "semantic": {
+            "type": "cuboid",
+            "label": "−極",
+            "description": "電池の低電位側。電子は平均的にはこちらから＋極側へ向かう。",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 4,
+              "y": 1,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.8,
+              "y": 2.2,
+              "z": 1.2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 7838156,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        },
+        {
+          "id": "wire_volume",
+          "semantic": {
+            "type": "cylinder",
+            "label": "導線内部",
+            "description": "半透明の円柱を導線内部の空間として扱う。ここに現象JSONを埋め込み、電子ドリフトと電場ベクトルを表示する。",
+            "stackedOn": null,
+            "stackedItems": [
+              "electron_group"
+            ]
+          },
+          "visual": {
+            "position": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            },
+            "scale": {
+              "x": 7.2,
+              "y": 0.85,
+              "z": 7.2
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8956620,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [
+              {
+                "type": "particles",
+                "motion": "drift",
+                "count": 120,
+                "speed": 0.35,
+                "spread": 1.2,
+                "color": 6724095,
+                "direction": {
+                  "x": -1,
+                  "y": 0,
+                  "z": 0
+                },
+                "bounds": {
+                  "x": 7.2,
+                  "y": 1.0,
+                  "z": 1.0
+                }
+              },
+              {
+                "type": "vector",
+                "label": "電場 E",
+                "from": {
+                  "x": -3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "to": {
+                  "x": 3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "style": {
+                  "arrow": true,
+                  "color": 6724095,
+                  "opacity": 0.8,
+                  "thickness": 0.045
+                }
+              },
+              {
+                "type": "label",
+                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "position": {
+                  "x": 0,
+                  "y": 1.7,
+                  "z": 0
+                }
+              }
+            ],
+            "isTranslucent": true
+          }
+        },
+        {
+          "id": "resistor",
+          "semantic": {
+            "type": "cuboid",
+            "label": "抵抗",
+            "description": "電子の運動エネルギーが格子振動へ渡り、ジュール熱として現れる領域。",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 0,
+              "y": 1,
+              "z": -2.6
+            },
+            "scale": {
+              "x": 1.8,
+              "y": 1.0,
+              "z": 0.9
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 13412966,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        },
+        {
+          "id": "electric_field",
+          "semantic": {
+            "type": "cube",
+            "label": "電場",
+            "description": "電池による電位差が導線内部に電場を作り、電子の平均的な移動を方向づける。",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 0,
+              "y": 2.4,
+              "z": 0
+            },
+            "scale": {
+              "x": 1.2,
+              "y": 0.6,
+              "z": 0.6
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 6728447,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        },
+        {
+          "id": "electron_group",
+          "semantic": {
+            "type": "sphere",
+            "label": "自由電子群",
+            "description": "個々の電子はランダムに動きながら、全体としてはゆっくりドリフトする。",
+            "stackedOn": "wire_volume",
+            "stackedItems": [],
+            "containment": {
+              "mode": "inside",
+              "parentId": "wire_volume",
+              "fit": "center",
+              "padding": 0.18,
+              "distribution": "center",
+              "fillRatio": 0.35
+            }
+          },
+          "visual": {
+            "position": {
+              "x": 0,
+              "y": 0.75,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.55,
+              "y": 0.55,
+              "z": 0.55
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 6724095,
+            "labelPos": "front",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        },
+        {
+          "id": "joule_heat",
+          "semantic": {
+            "type": "sphere",
+            "label": "ジュール熱",
+            "description": "抵抗部で運動の乱れが熱として現れる。",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 0,
+              "y": 2.1,
+              "z": -2.6
+            },
+            "scale": {
+              "x": 0.7,
+              "y": 0.7,
+              "z": 0.7
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 13399927,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [],
+            "isTranslucent": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "edge_voltage",
+          "semantic": {
+            "sourceId": "battery_plus",
+            "targetId": "battery_minus",
+            "label": "電位差",
+            "description": "電池が回路に電位差を与える。",
+            "isCrossedOut": false
+          },
+          "visual": {
+            "thickness": 0.05,
+            "arrowStart": false,
+            "arrowEnd": true,
+            "isCurve": false,
+            "isTranslucent": false,
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": []
+          }
+        },
+        {
+          "id": "edge_field",
+          "semantic": {
+            "sourceId": "electric_field",
+            "targetId": "wire_volume",
+            "label": "導線内の電場",
+            "description": "電場は導線内部の電子の平均的な動きを方向づける。",
+            "isCrossedOut": false
+          },
+          "visual": {
+            "thickness": 0.05,
+            "arrowStart": false,
+            "arrowEnd": true,
+            "isCurve": false,
+            "isTranslucent": false,
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [
+              {
+                "type": "particles",
+                "motion": "drift",
+                "count": 120,
+                "speed": 0.35,
+                "spread": 1.2,
+                "color": 6724095,
+                "direction": {
+                  "x": -1,
+                  "y": 0,
+                  "z": 0
+                },
+                "bounds": {
+                  "x": 7.2,
+                  "y": 1.0,
+                  "z": 1.0
+                }
+              },
+              {
+                "type": "vector",
+                "label": "電場 E",
+                "from": {
+                  "x": -3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "to": {
+                  "x": 3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "style": {
+                  "arrow": true,
+                  "color": 6724095,
+                  "opacity": 0.8,
+                  "thickness": 0.045
+                }
+              },
+              {
+                "type": "label",
+                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "position": {
+                  "x": 0,
+                  "y": 1.7,
+                  "z": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "edge_electron_drift",
+          "semantic": {
+            "sourceId": "electron_group",
+            "targetId": "battery_plus",
+            "label": "電子のドリフト",
+            "description": "電子は電場と逆向きにゆっくり偏って進む。",
+            "isCrossedOut": false
+          },
+          "visual": {
+            "thickness": 0.05,
+            "arrowStart": false,
+            "arrowEnd": true,
+            "isCurve": false,
+            "isTranslucent": false,
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": [
+              {
+                "type": "particles",
+                "motion": "drift",
+                "count": 120,
+                "speed": 0.35,
+                "spread": 1.2,
+                "color": 6724095,
+                "direction": {
+                  "x": -1,
+                  "y": 0,
+                  "z": 0
+                },
+                "bounds": {
+                  "x": 7.2,
+                  "y": 1.0,
+                  "z": 1.0
+                }
+              },
+              {
+                "type": "vector",
+                "label": "電場 E",
+                "from": {
+                  "x": -3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "to": {
+                  "x": 3.2,
+                  "y": 1.15,
+                  "z": 0
+                },
+                "style": {
+                  "arrow": true,
+                  "color": 6724095,
+                  "opacity": 0.8,
+                  "thickness": 0.045
+                }
+              },
+              {
+                "type": "label",
+                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "position": {
+                  "x": 0,
+                  "y": 1.7,
+                  "z": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "edge_heat",
+          "semantic": {
+            "sourceId": "resistor",
+            "targetId": "joule_heat",
+            "label": "エネルギー変換",
+            "description": "抵抗では電気エネルギーが熱へ変わる。",
+            "isCrossedOut": false
+          },
+          "visual": {
+            "thickness": 0.05,
+            "arrowStart": false,
+            "arrowEnd": true,
+            "isCurve": false,
+            "isTranslucent": false,
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomena": []
+          }
+        }
+      ]
     }
-  ]
+  },
+  "_editorState": {
+    "currentSpaceId": "root",
+    "spacePath": [
+      {
+        "id": "root",
+        "label": "全体空間 (Root)"
+      }
+    ]
+  }
 }
