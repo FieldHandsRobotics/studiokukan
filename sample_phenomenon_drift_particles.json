@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "電流：電場・電子ドリフト・抵抗の空間モデル",
-    "description": "電流を、電池が作る電位差、導線内部の電場、電子のドリフト、抵抗でのエネルギー変換として空間化したモデル。現象JSON URLは導線内部ノードと電流エッジの両方に埋め込んである。"
+    "title": "電流：電場・電子ドリフト・抵抗の空間モデル v4.4クリーン現象版",
+    "description": "v4.4の現象ビューアで見やすく表示されるよう、現象レイヤーを中心座標へ整理した電流モデル。外部サンプルURLには依存せず、モデル内のvisual.phenomenaを使う。"
   },
   "spaces": {
     "root": {
@@ -111,53 +111,61 @@
             "labelPos": "top",
             "imageUrl": "",
             "imageSource": "",
-            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomenonUrl": "",
+            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
             "phenomena": [
               {
                 "type": "particles",
                 "motion": "drift",
-                "count": 120,
-                "speed": 0.35,
-                "spread": 1.2,
+                "count": 80,
+                "speed": 0.28,
+                "spread": 2.4,
+                "intensity": 0.65,
                 "color": 6724095,
                 "direction": {
                   "x": -1,
                   "y": 0,
                   "z": 0
-                },
-                "bounds": {
-                  "x": 7.2,
-                  "y": 1.0,
-                  "z": 1.0
                 }
               },
               {
                 "type": "vector",
-                "label": "電場 E",
+                "label": "電場 E（＋極 → −極）",
                 "from": {
-                  "x": -3.2,
-                  "y": 1.15,
+                  "x": -2.7,
+                  "y": 0.85,
                   "z": 0
                 },
                 "to": {
-                  "x": 3.2,
-                  "y": 1.15,
+                  "x": 2.7,
+                  "y": 0.85,
                   "z": 0
                 },
-                "style": {
-                  "arrow": true,
-                  "color": 6724095,
-                  "opacity": 0.8,
-                  "thickness": 0.045
-                }
+                "color": 16768358,
+                "opacity": 0.68
+              },
+              {
+                "type": "vector",
+                "label": "電子の平均移動（−）",
+                "from": {
+                  "x": 2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "to": {
+                  "x": -2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "color": 6724095,
+                "opacity": 0.58
               },
               {
                 "type": "label",
-                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
                 "position": {
                   "x": 0,
-                  "y": 1.7,
+                  "y": 1.45,
                   "z": 0
                 }
               }
@@ -354,53 +362,61 @@
             "isTranslucent": false,
             "imageUrl": "",
             "imageSource": "",
-            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomenonUrl": "",
+            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
             "phenomena": [
               {
                 "type": "particles",
                 "motion": "drift",
-                "count": 120,
-                "speed": 0.35,
-                "spread": 1.2,
+                "count": 80,
+                "speed": 0.28,
+                "spread": 2.4,
+                "intensity": 0.65,
                 "color": 6724095,
                 "direction": {
                   "x": -1,
                   "y": 0,
                   "z": 0
-                },
-                "bounds": {
-                  "x": 7.2,
-                  "y": 1.0,
-                  "z": 1.0
                 }
               },
               {
                 "type": "vector",
-                "label": "電場 E",
+                "label": "電場 E（＋極 → −極）",
                 "from": {
-                  "x": -3.2,
-                  "y": 1.15,
+                  "x": -2.7,
+                  "y": 0.85,
                   "z": 0
                 },
                 "to": {
-                  "x": 3.2,
-                  "y": 1.15,
+                  "x": 2.7,
+                  "y": 0.85,
                   "z": 0
                 },
-                "style": {
-                  "arrow": true,
-                  "color": 6724095,
-                  "opacity": 0.8,
-                  "thickness": 0.045
-                }
+                "color": 16768358,
+                "opacity": 0.68
+              },
+              {
+                "type": "vector",
+                "label": "電子の平均移動（−）",
+                "from": {
+                  "x": 2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "to": {
+                  "x": -2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "color": 6724095,
+                "opacity": 0.58
               },
               {
                 "type": "label",
-                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
                 "position": {
                   "x": 0,
-                  "y": 1.7,
+                  "y": 1.45,
                   "z": 0
                 }
               }
@@ -424,53 +440,61 @@
             "isTranslucent": false,
             "imageUrl": "",
             "imageSource": "",
-            "phenomenonUrl": "https://raw.githubusercontent.com/FieldHandsRobotics/studiokukan/main/sample_phenomenon_drift_particles.json",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomenonUrl": "",
+            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
             "phenomena": [
               {
                 "type": "particles",
                 "motion": "drift",
-                "count": 120,
-                "speed": 0.35,
-                "spread": 1.2,
+                "count": 80,
+                "speed": 0.28,
+                "spread": 2.4,
+                "intensity": 0.65,
                 "color": 6724095,
                 "direction": {
                   "x": -1,
                   "y": 0,
                   "z": 0
-                },
-                "bounds": {
-                  "x": 7.2,
-                  "y": 1.0,
-                  "z": 1.0
                 }
               },
               {
                 "type": "vector",
-                "label": "電場 E",
+                "label": "電場 E（＋極 → −極）",
                 "from": {
-                  "x": -3.2,
-                  "y": 1.15,
+                  "x": -2.7,
+                  "y": 0.85,
                   "z": 0
                 },
                 "to": {
-                  "x": 3.2,
-                  "y": 1.15,
+                  "x": 2.7,
+                  "y": 0.85,
                   "z": 0
                 },
-                "style": {
-                  "arrow": true,
-                  "color": 6724095,
-                  "opacity": 0.8,
-                  "thickness": 0.045
-                }
+                "color": 16768358,
+                "opacity": 0.68
+              },
+              {
+                "type": "vector",
+                "label": "電子の平均移動（−）",
+                "from": {
+                  "x": 2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "to": {
+                  "x": -2.25,
+                  "y": -0.55,
+                  "z": 0
+                },
+                "color": 6724095,
+                "opacity": 0.58
               },
               {
                 "type": "label",
-                "text": "電子は電場と逆向きにゆっくりドリフトする",
+                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
                 "position": {
                   "x": 0,
-                  "y": 1.7,
+                  "y": 1.45,
                   "z": 0
                 }
               }
@@ -495,8 +519,32 @@
             "imageUrl": "",
             "imageSource": "",
             "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": []
+            "phenomenonSource": "抵抗の発熱現象レイヤー",
+            "phenomena": [
+              {
+                "type": "particles",
+                "motion": "orbit",
+                "count": 70,
+                "speed": 0.55,
+                "spread": 1.6,
+                "intensity": 0.7,
+                "color": 16755268,
+                "direction": {
+                  "x": 0,
+                  "y": 1,
+                  "z": 0
+                }
+              },
+              {
+                "type": "label",
+                "text": "抵抗では電子のエネルギーが格子振動へ渡り、熱として現れる",
+                "position": {
+                  "x": 0,
+                  "y": 1.55,
+                  "z": 0
+                }
+              }
+            ]
           }
         }
       ]
