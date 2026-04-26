@@ -1,103 +1,238 @@
 {
   "metadata": {
-    "title": "電流モデル内蔵現象レイヤー（ラベル退避版）",
-    "description": "電場の矢印、電子の平均移動、電子粒子を分離して表示します。ラベルは矢印の線上から大きく退避させています。"
+    "title": "電子ドリフト現象",
+    "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
   },
-  "phenomena": [
-    {
-      "type": "flow",
-      "motion": "drift",
-      "label": "電子粒子",
-      "count": 64,
-      "density": 64,
-      "speed": 0.22,
-      "intensity": 0.55,
-      "color": 5210073,
-      "area": {
-        "min": {
-          "x": -3.8,
-          "y": -0.65,
-          "z": -0.55
+  "spaces": {
+    "root": {
+      "nodes": [
+        {
+          "id": "id_2b5ypa8vr",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": [
+              "id_vf1z3ga73"
+            ]
+          },
+          "visual": {
+            "position": {
+              "x": -1.738664534856488,
+              "y": 2.7019457749160334,
+              "z": -3.3663351552350744
+            },
+            "scale": {
+              "x": 1.1,
+              "y": 1.4,
+              "z": 1.1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": true
+          },
+          "runtime": {
+            "lastPos": {
+              "x": -1.738664534856488,
+              "y": 2.7019457749160334,
+              "z": -3.3663351552350744
+            }
+          }
         },
-        "max": {
-          "x": 3.8,
-          "y": 0.65,
-          "z": 0.55
+        {
+          "id": "id_j27wgxm64",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 1.8241855015348263,
+              "y": 0.5,
+              "z": 1.2263058706907526
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 1.8241855015348263,
+              "y": 0.5,
+              "z": 1.2263058706907526
+            }
+          }
+        },
+        {
+          "id": "id_vf1z3ga73",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": "id_2b5ypa8vr",
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": -1.7565745292831796,
+              "y": 2.6219457749160333,
+              "z": -3.343620290913197
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": -1.7565745292831796,
+              "y": 2.6219457749160333,
+              "z": -3.343620290913197
+            }
+          }
+        },
+        {
+          "id": "id_hsolo4wvf",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 1.9153123620403627,
+              "y": 0.5,
+              "z": -2.296675571191624
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 1.9153123620403627,
+              "y": 0.5,
+              "z": -2.296675571191624
+            }
+          }
+        },
+        {
+          "id": "id_7y0zqxjra",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 2.207083067001296,
+              "y": 0.5,
+              "z": 1.2999731068182963
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 2.207083067001296,
+              "y": 0.5,
+              "z": 1.2999731068182963
+            }
+          }
         }
-      },
-      "direction": {
-        "x": -1,
-        "y": 0,
-        "z": 0
-      }
-    },
-    {
-      "type": "vector",
-      "label": "",
-      "from": {
-        "x": -4.2,
-        "y": 1.38,
-        "z": -0.82
-      },
-      "to": {
-        "x": 4.2,
-        "y": 1.38,
-        "z": -0.82
-      },
-      "style": {
-        "arrow": true,
-        "color": 16768358,
-        "opacity": 0.85,
-        "thickness": 0.035
-      }
-    },
-    {
-      "type": "vector",
-      "label": "",
-      "from": {
-        "x": 3.6,
-        "y": -0.95,
-        "z": 0.82
-      },
-      "to": {
-        "x": -3.6,
-        "y": -0.95,
-        "z": 0.82
-      },
-      "style": {
-        "arrow": true,
-        "color": 6728447,
-        "opacity": 0.75,
-        "thickness": 0.028
-      }
-    },
-    {
-      "type": "label",
-      "text": "電場 E（＋極 → −極）",
-      "position": {
-        "x": 3.15,
-        "y": 2.15,
-        "z": -1.45
-      }
-    },
-    {
-      "type": "label",
-      "text": "電子の平均移動（−）",
-      "position": {
-        "x": -3.45,
-        "y": -1.65,
-        "z": 1.55
-      }
-    },
-    {
-      "type": "label",
-      "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
-      "position": {
-        "x": 0,
-        "y": 3.1,
-        "z": -2.1
+      ],
+      "edges": [],
+      "metadata": {
+        "title": "電子ドリフト現象",
+        "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
       }
     }
-  ],
-  "layers": []
+  },
+  "_editorState": {
+    "currentSpaceId": "root",
+    "spacePath": [
+      {
+        "id": "root",
+        "label": "全体空間 (Root)"
+      }
+    ]
+  }
 }
