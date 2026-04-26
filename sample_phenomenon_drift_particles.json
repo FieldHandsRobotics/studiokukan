@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "title": "電子ドリフト現象",
+    "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
+  },
+  "phenomena": [
+    {
+      "type": "particles",
+      "motion": "drift",
+      "count": 180,
+      "speed": 0.32,
+      "spread": 5.5,
+      "intensity": 0.65,
+      "color": 6724095,
+      "direction": { "x": -1, "y": 0, "z": 0 }
+    },
+    {
+      "type": "vector",
+      "label": "電場の向き",
+      "from": { "x": -4, "y": 1.1, "z": 0 },
+      "to": { "x": 4, "y": 1.1, "z": 0 },
+      "color": 16768358,
+      "opacity": 0.55
+    },
+    {
+      "type": "label",
+      "text": "電子は電場と逆向きに平均移動する",
+      "position": { "x": 0, "y": 2.0, "z": 0 }
+    }
+  ]
+}
