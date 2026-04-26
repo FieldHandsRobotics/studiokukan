@@ -1,553 +1,229 @@
 {
   "metadata": {
-    "title": "電流：電場・電子ドリフト・抵抗の空間モデル v4.4クリーン現象版",
-    "description": "v4.4の現象ビューアで見やすく表示されるよう、現象レイヤーを中心座標へ整理した電流モデル。外部サンプルURLには依存せず、モデル内のvisual.phenomenaを使う。"
+    "title": "電子ドリフト現象",
+    "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
   },
   "spaces": {
     "root": {
-      "metadata": {
-        "title": "電流の全体構造",
-        "description": "電池が電位差を作り、導線内部に電場が生じ、自由電子が平均的に偏って動く。抵抗では電気エネルギーが熱へ変換される。"
-      },
       "nodes": [
         {
-          "id": "battery_plus",
-          "semantic": {
-            "type": "cuboid",
-            "label": "＋極",
-            "description": "電池の高電位側。慣用電流はここから外部回路へ出ると考える。",
-            "stackedOn": null,
-            "stackedItems": []
-          },
-          "visual": {
-            "position": {
-              "x": -4,
-              "y": 1,
-              "z": 0
-            },
-            "scale": {
-              "x": 0.8,
-              "y": 2.2,
-              "z": 1.2
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "color": 13399927,
-            "labelPos": "top",
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": [],
-            "isTranslucent": false
-          }
-        },
-        {
-          "id": "battery_minus",
-          "semantic": {
-            "type": "cuboid",
-            "label": "−極",
-            "description": "電池の低電位側。電子は平均的にはこちらから＋極側へ向かう。",
-            "stackedOn": null,
-            "stackedItems": []
-          },
-          "visual": {
-            "position": {
-              "x": 4,
-              "y": 1,
-              "z": 0
-            },
-            "scale": {
-              "x": 0.8,
-              "y": 2.2,
-              "z": 1.2
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "color": 7838156,
-            "labelPos": "top",
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": [],
-            "isTranslucent": false
-          }
-        },
-        {
-          "id": "wire_volume",
+          "id": "id_2b5ypa8vr",
           "semantic": {
             "type": "cylinder",
-            "label": "導線内部",
-            "description": "半透明の円柱を導線内部の空間として扱う。ここに現象JSONを埋め込み、電子ドリフトと電場ベクトルを表示する。",
+            "label": "",
+            "description": "",
             "stackedOn": null,
             "stackedItems": [
-              "electron_group"
+              "id_vf1z3ga73"
             ]
           },
           "visual": {
             "position": {
-              "x": 0,
-              "y": 1,
-              "z": 0
+              "x": -1.738664534856488,
+              "y": 2.7019457749160334,
+              "z": -3.3663351552350744
             },
             "scale": {
-              "x": 7.2,
-              "y": 0.85,
-              "z": 7.2
+              "x": 1.1,
+              "y": 1.4,
+              "z": 1.1
             },
             "rotation": {
               "x": 0,
               "y": 0,
               "z": 0
             },
-            "color": 8956620,
+            "color": 8952234,
             "labelPos": "top",
             "imageUrl": "",
             "imageSource": "",
             "phenomenonUrl": "",
-            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
-            "phenomena": [
-              {
-                "type": "particles",
-                "motion": "drift",
-                "count": 80,
-                "speed": 0.28,
-                "spread": 2.4,
-                "intensity": 0.65,
-                "color": 6724095,
-                "direction": {
-                  "x": -1,
-                  "y": 0,
-                  "z": 0
-                }
-              },
-              {
-                "type": "vector",
-                "label": "電場 E（＋極 → −極）",
-                "from": {
-                  "x": -2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "to": {
-                  "x": 2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "color": 16768358,
-                "opacity": 0.68
-              },
-              {
-                "type": "vector",
-                "label": "電子の平均移動（−）",
-                "from": {
-                  "x": 2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "to": {
-                  "x": -2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "color": 6724095,
-                "opacity": 0.58
-              },
-              {
-                "type": "label",
-                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
-                "position": {
-                  "x": 0,
-                  "y": 1.45,
-                  "z": 0
-                }
-              }
-            ],
+            "phenomenonSource": "",
+            "phenomena": [],
             "isTranslucent": true
-          }
-        },
-        {
-          "id": "resistor",
-          "semantic": {
-            "type": "cuboid",
-            "label": "抵抗",
-            "description": "電子の運動エネルギーが格子振動へ渡り、ジュール熱として現れる領域。",
-            "stackedOn": null,
-            "stackedItems": []
           },
-          "visual": {
-            "position": {
-              "x": 0,
-              "y": 1,
-              "z": -2.6
-            },
-            "scale": {
-              "x": 1.8,
-              "y": 1.0,
-              "z": 0.9
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "color": 13412966,
-            "labelPos": "top",
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": [],
-            "isTranslucent": false
-          }
-        },
-        {
-          "id": "electric_field",
-          "semantic": {
-            "type": "cube",
-            "label": "電場",
-            "description": "電池による電位差が導線内部に電場を作り、電子の平均的な移動を方向づける。",
-            "stackedOn": null,
-            "stackedItems": []
-          },
-          "visual": {
-            "position": {
-              "x": 0,
-              "y": 2.4,
-              "z": 0
-            },
-            "scale": {
-              "x": 1.2,
-              "y": 0.6,
-              "z": 0.6
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "color": 6728447,
-            "labelPos": "top",
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": [],
-            "isTranslucent": false
-          }
-        },
-        {
-          "id": "electron_group",
-          "semantic": {
-            "type": "sphere",
-            "label": "自由電子群",
-            "description": "個々の電子はランダムに動きながら、全体としてはゆっくりドリフトする。",
-            "stackedOn": "wire_volume",
-            "stackedItems": [],
-            "containment": {
-              "mode": "inside",
-              "parentId": "wire_volume",
-              "fit": "center",
-              "padding": 0.18,
-              "distribution": "center",
-              "fillRatio": 0.35
+          "runtime": {
+            "lastPos": {
+              "x": -1.738664534856488,
+              "y": 2.7019457749160334,
+              "z": -3.3663351552350744
             }
-          },
-          "visual": {
-            "position": {
-              "x": 0,
-              "y": 0.75,
-              "z": 0
-            },
-            "scale": {
-              "x": 0.55,
-              "y": 0.55,
-              "z": 0.55
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "color": 6724095,
-            "labelPos": "front",
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": [],
-            "isTranslucent": false
           }
         },
         {
-          "id": "joule_heat",
+          "id": "id_j27wgxm64",
           "semantic": {
-            "type": "sphere",
-            "label": "ジュール熱",
-            "description": "抵抗部で運動の乱れが熱として現れる。",
+            "type": "cylinder",
+            "label": "",
+            "description": "",
             "stackedOn": null,
             "stackedItems": []
           },
           "visual": {
             "position": {
-              "x": 0,
-              "y": 2.1,
-              "z": -2.6
+              "x": 1.8241855015348263,
+              "y": 0.5,
+              "z": 1.2263058706907526
             },
             "scale": {
-              "x": 0.7,
-              "y": 0.7,
-              "z": 0.7
+              "x": 1,
+              "y": 1,
+              "z": 1
             },
             "rotation": {
               "x": 0,
               "y": 0,
               "z": 0
             },
-            "color": 13399927,
+            "color": 8952234,
             "labelPos": "top",
             "imageUrl": "",
             "imageSource": "",
             "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
+            "phenomenonSource": "",
             "phenomena": [],
             "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 1.8241855015348263,
+              "y": 0.5,
+              "z": 1.2263058706907526
+            }
+          }
+        },
+        {
+          "id": "id_vf1z3ga73",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": "id_2b5ypa8vr",
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": -1.7565745292831796,
+              "y": 2.6219457749160333,
+              "z": -3.343620290913197
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": -1.7565745292831796,
+              "y": 2.6219457749160333,
+              "z": -3.343620290913197
+            }
+          }
+        },
+        {
+          "id": "id_hsolo4wvf",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 1.9153123620403627,
+              "y": 0.5,
+              "z": -2.296675571191624
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 1.9153123620403627,
+              "y": 0.5,
+              "z": -2.296675571191624
+            }
+          }
+        },
+        {
+          "id": "id_7y0zqxjra",
+          "semantic": {
+            "type": "cylinder",
+            "label": "",
+            "description": "",
+            "stackedOn": null,
+            "stackedItems": []
+          },
+          "visual": {
+            "position": {
+              "x": 2.207083067001296,
+              "y": 0.5,
+              "z": 1.2999731068182963
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "color": 8952234,
+            "labelPos": "top",
+            "imageUrl": "",
+            "imageSource": "",
+            "phenomenonUrl": "",
+            "phenomenonSource": "",
+            "phenomena": [],
+            "isTranslucent": false
+          },
+          "runtime": {
+            "lastPos": {
+              "x": 2.207083067001296,
+              "y": 0.5,
+              "z": 1.2999731068182963
+            }
           }
         }
       ],
-      "edges": [
-        {
-          "id": "edge_voltage",
-          "semantic": {
-            "sourceId": "battery_plus",
-            "targetId": "battery_minus",
-            "label": "電位差",
-            "description": "電池が回路に電位差を与える。",
-            "isCrossedOut": false
-          },
-          "visual": {
-            "thickness": 0.05,
-            "arrowStart": false,
-            "arrowEnd": true,
-            "isCurve": false,
-            "isTranslucent": false,
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "sample_phenomenon_drift_particles.json",
-            "phenomena": []
-          }
-        },
-        {
-          "id": "edge_field",
-          "semantic": {
-            "sourceId": "electric_field",
-            "targetId": "wire_volume",
-            "label": "導線内の電場",
-            "description": "電場は導線内部の電子の平均的な動きを方向づける。",
-            "isCrossedOut": false
-          },
-          "visual": {
-            "thickness": 0.05,
-            "arrowStart": false,
-            "arrowEnd": true,
-            "isCurve": false,
-            "isTranslucent": false,
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
-            "phenomena": [
-              {
-                "type": "particles",
-                "motion": "drift",
-                "count": 80,
-                "speed": 0.28,
-                "spread": 2.4,
-                "intensity": 0.65,
-                "color": 6724095,
-                "direction": {
-                  "x": -1,
-                  "y": 0,
-                  "z": 0
-                }
-              },
-              {
-                "type": "vector",
-                "label": "電場 E（＋極 → −極）",
-                "from": {
-                  "x": -2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "to": {
-                  "x": 2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "color": 16768358,
-                "opacity": 0.68
-              },
-              {
-                "type": "vector",
-                "label": "電子の平均移動（−）",
-                "from": {
-                  "x": 2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "to": {
-                  "x": -2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "color": 6724095,
-                "opacity": 0.58
-              },
-              {
-                "type": "label",
-                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
-                "position": {
-                  "x": 0,
-                  "y": 1.45,
-                  "z": 0
-                }
-              }
-            ]
-          }
-        },
-        {
-          "id": "edge_electron_drift",
-          "semantic": {
-            "sourceId": "electron_group",
-            "targetId": "battery_plus",
-            "label": "電子のドリフト",
-            "description": "電子は電場と逆向きにゆっくり偏って進む。",
-            "isCrossedOut": false
-          },
-          "visual": {
-            "thickness": 0.05,
-            "arrowStart": false,
-            "arrowEnd": true,
-            "isCurve": false,
-            "isTranslucent": false,
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "電流モデル内蔵現象レイヤー（v4.4向け）",
-            "phenomena": [
-              {
-                "type": "particles",
-                "motion": "drift",
-                "count": 80,
-                "speed": 0.28,
-                "spread": 2.4,
-                "intensity": 0.65,
-                "color": 6724095,
-                "direction": {
-                  "x": -1,
-                  "y": 0,
-                  "z": 0
-                }
-              },
-              {
-                "type": "vector",
-                "label": "電場 E（＋極 → −極）",
-                "from": {
-                  "x": -2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "to": {
-                  "x": 2.7,
-                  "y": 0.85,
-                  "z": 0
-                },
-                "color": 16768358,
-                "opacity": 0.68
-              },
-              {
-                "type": "vector",
-                "label": "電子の平均移動（−）",
-                "from": {
-                  "x": 2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "to": {
-                  "x": -2.25,
-                  "y": -0.55,
-                  "z": 0
-                },
-                "color": 6724095,
-                "opacity": 0.58
-              },
-              {
-                "type": "label",
-                "text": "電場は右向き、電子は逆向きにゆっくり偏って動く",
-                "position": {
-                  "x": 0,
-                  "y": 1.45,
-                  "z": 0
-                }
-              }
-            ]
-          }
-        },
-        {
-          "id": "edge_heat",
-          "semantic": {
-            "sourceId": "resistor",
-            "targetId": "joule_heat",
-            "label": "エネルギー変換",
-            "description": "抵抗では電気エネルギーが熱へ変わる。",
-            "isCrossedOut": false
-          },
-          "visual": {
-            "thickness": 0.05,
-            "arrowStart": false,
-            "arrowEnd": true,
-            "isCurve": false,
-            "isTranslucent": false,
-            "imageUrl": "",
-            "imageSource": "",
-            "phenomenonUrl": "",
-            "phenomenonSource": "抵抗の発熱現象レイヤー",
-            "phenomena": [
-              {
-                "type": "particles",
-                "motion": "orbit",
-                "count": 70,
-                "speed": 0.55,
-                "spread": 1.6,
-                "intensity": 0.7,
-                "color": 16755268,
-                "direction": {
-                  "x": 0,
-                  "y": 1,
-                  "z": 0
-                }
-              },
-              {
-                "type": "label",
-                "text": "抵抗では電子のエネルギーが格子振動へ渡り、熱として現れる",
-                "position": {
-                  "x": 0,
-                  "y": 1.55,
-                  "z": 0
-                }
-              }
-            ]
-          }
-        }
-      ]
+      "edges": [],
+      "metadata": {
+        "title": "電子ドリフト現象",
+        "description": "電場によって電子が平均的にゆっくり偏って進む様子を、静かな粒子流として表示します。"
+      }
     }
   },
   "_editorState": {
